@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: digix-ocr-worker
+spec:
+  replicas: 1
+  selector:
+    name: digix-ocr-worker
+  template:
+    metadata:
+      labels:
+        name: digix-ocr-worker
+    spec:
+      containers:
+        - name: digix-ocr-worker
+          image: renansmoreira/worker:0.0.10
+          env:
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rabbit-mq-password
+                  key: password
+          command: ['./tools/wait-for-it.sh', '35.202.182.156:5672', '--', "node", "./src/worker/src/index.js", "--amqp_uri", "amqp://admin:$(RABBITMQ_PASSWORD)@35.202.182.156"]
