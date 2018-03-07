@@ -43,7 +43,9 @@ function send(channel) {
     };
   });
 
-  console.log(' [x] Enviando lote de %s', _messages_to_send.length);
+  console.log(' [x] Enviando lote:', _messages_to_send.length);
+  payload.forEach((item) => console.log(' [x] %s', item.idImagem));
+  console.log(' [x] ---------------');
 
   _messages_to_send = [];
 

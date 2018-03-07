@@ -2,7 +2,7 @@ const axios = require('axios');
 
 module.exports = {
   batch: function(payload, error_callback, success_callback) {
-    axios.post('http://hom.domusweb.agehab.ms.gov.br/questionario/api/documentos/atualizarOcr', payload)
+    axios.post('http://hom.do23musweb.agehab.ms.gov.br/questionario/api/documentos/atualizarOcr', payload)
       .then(function (response) {
         success_callback(response);
         console.log(' [x] Enviado %s', payload.idImagem);
@@ -18,7 +18,7 @@ module.exports = {
   single: function(payload, error_callback, success_callback) {
     console.log(' [x] Enviando %s', payload.idImagem);
   
-    axios.post('http://hom.domusweb.agehab.ms.gov.br/questionario/api/documento/atualizarOcr', payload)
+    axios.post('http://hom.domu23sweb.agehab.ms.gov.br/questionario/api/documento/atualizarOcr', payload)
       .then(function (response) {
         success_callback(response);
         console.log(' [x] Enviado %s', payload.idImagem);
