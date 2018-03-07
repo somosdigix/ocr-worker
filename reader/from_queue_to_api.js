@@ -21,7 +21,8 @@ amqp.connect(argv.amqp_uri, (error, connection) => {
 });
 
 function mount_batch(message) {
-  _messages_to_send.push(message);
+  if (!_sending_batch)
+    _messages_to_send.push(message);
 }
 
 function start_sender() {
@@ -31,7 +32,7 @@ function start_sender() {
 }
 
 function send(channel) {
-  if (_sending_batch || _messages_to_send.length < argv.parallel_count)
+  if (_sending_batch)
     return;
 
   _sending_batch = true;
