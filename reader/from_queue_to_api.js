@@ -20,7 +20,7 @@ function send_to_api(channel, message) {
   };
 
   console.log(' [x] Enviando %s', payload.idImagem);
-  console.log(' [x] Enviando %s', message.content.toString()));
+  console.log(' [x] Enviando %s', message.content.toString());
   
   request.post('http://hom.domusweb.agehab.ms.gov.br/questionario/api/documento/atualizarOcr', payload, (error, response, body) => {
     console.log(' [x] StatusCode: %s - %s', payload.idImagem, response.statusCode);
