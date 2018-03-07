@@ -19,13 +19,14 @@ function send_to_api(channel, message) {
     resultadoDaOcr: document.texto
   };
 
-  console.log(' [x] Enviando %s', document.id);
+  console.log(' [x] Enviando %s', payload.idImagem);
   
   request.post('http://hom.domusweb.agehab.ms.gov.br/questionario/api/documento/atualizarOcr', payload, (error, response, body) => {
+    console.log(' [x] StatusCode: %s - %s', payload.idImagem, response.statusCode);
+
       if (error) {
         console.log(' [x] Erro ao enviar para API: %s');
         console.log(' [x] Erro: %s', error);
-        console.log(' [x] StatusCode: %s', response.statusCode);
         console.log(' [x] Body: %s', body);
         console.log(' [x] ----------------------------');
 
@@ -34,6 +35,6 @@ function send_to_api(channel, message) {
       }
 
       channel.ack(message);
-      console.log(' [x] Enviado %s', document.id);
+      console.log(' [x] Enviando %s', payload.idImagem);
     });
 }

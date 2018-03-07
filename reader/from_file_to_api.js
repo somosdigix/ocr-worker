@@ -24,10 +24,11 @@ function send_documents(documents) {
     console.log(' [x] Enviando %s', payload.idImagem);
 
     request.post('http://hom.domusweb.agehab.ms.gov.br/questionario/api/documento/atualizarOcr', payload, (error, response, body) => {
+      console.log(' [x] StatusCode: %s - %s', payload.idImagem, response.statusCode);
+
       if (error) {
         console.log(' [x] Erro ao enviar para API: %s');
         console.log(' [x] Erro: %s', error);
-        console.log(' [x] StatusCode: %s', response.statusCode);
         console.log(' [x] Body: %s', body);
         console.log(' [x] ----------------------------');
         return;
