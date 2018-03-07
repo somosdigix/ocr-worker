@@ -19,7 +19,7 @@ function send_to_api(channel, message) {
     resultadoDaOcr: document.texto
   };
 
-  // console.log(' [x] Sending %s', document.id);
+  console.log(' [x] Enviando %s', document.id);
   
   request.post('http://hom.domusweb.agehab.ms.gov.br/questionario/api/documento/atualizarOcr', payload, (error, response, body) => {
       if (error) {
@@ -34,5 +34,6 @@ function send_to_api(channel, message) {
       }
 
       channel.ack(message);
+      console.log(' [x] Enviado %s', document.id);
     });
 }

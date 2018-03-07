@@ -21,7 +21,7 @@ function send_documents(documents) {
       resultadoDaOcr: fs.readFileSync(document, 'utf8')
     };
 
-    // console.log(' [x] Sending %s - %s', payload.idImagem, payload.resultadoDaOcr);
+    console.log(' [x] Enviando %s', payload.idImagem);
 
     request.post('http://hom.domusweb.agehab.ms.gov.br/questionario/api/documento/atualizarOcr', payload, (error, response, body) => {
       if (error) {
@@ -34,6 +34,7 @@ function send_documents(documents) {
       }
 
       fs.unlink(document);
+      console.log(' [x] Enviado %s', payload.idImagem);
     });
   });
 }
