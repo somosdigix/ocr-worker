@@ -14,7 +14,7 @@ amqp.connect(argv.amqp_uri, (error, connection) => {
 function save_to_file(channel, message) {
   const document = JSON.parse(message.content.toString());
   
-  fs.writeFile(`${document.id}.txt`, document.texto, (error) => {
+  fs.writeFile(`./files/${document.id}.txt`, document.texto, (error) => {
     if (error) {
       channel.nack(message);
       return;
