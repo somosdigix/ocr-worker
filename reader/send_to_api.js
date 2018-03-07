@@ -5,7 +5,7 @@ module.exports = {
     axios.post('http://hom.domusweb.agehab.ms.gov.br/questionario/api/documentos/atualizarOcr', payload)
       .then(function (response) {
         success_callback(response);
-        console.log(' [x] Enviado %s', payload.idImagem);
+        console.log(' [x] Enviado lote de %s', payload.length);
       })
       .catch(function (error) {
         error_callback(error);
