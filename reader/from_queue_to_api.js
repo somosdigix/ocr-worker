@@ -15,10 +15,18 @@ amqp.connect(argv.amqp_uri, (error, connection) => {
 function send(channel, message) {
   const document = JSON.parse(message.content.toString());
 
-  send_to_api({
+  const payload = {
     idImagem: document.id,
     resultadoDaOcr: document.texto
-  },
-  () => channel.nack(),
-  () => channel.ack());
+  };
+
+  const error_callback = () => {
+    channel.nack(message);
+  };
+
+  const success_callback = () => { 
+    channel.ack(message)
+  };
+
+  send_to_api(payload, error_callback, success_callback);
 }

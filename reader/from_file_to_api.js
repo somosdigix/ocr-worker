@@ -17,11 +17,17 @@ function send(documents) {
 
     send_count++;
 
-    send_to_api({
+    const payload = {
       idImagem: parseInt(document.replace('.txt')),
       resultadoDaOcr: fs.readFileSync(document, 'utf8')
-    },
-    () => channel.nack(),
-    () => channel.ack());
+    };
+
+    const error_callback = () => {};
+    
+    const success_callback = () => { 
+      fs.unlink(document);
+    };
+
+    send_to_api(payload, error_callback, success_callback);
   });
 }
