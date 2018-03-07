@@ -23,11 +23,11 @@ function send(documents) {
     };
 
     const error_callback = () => {};
-    
+
     const success_callback = () => { 
       fs.unlink(document);
     };
 
-    send_to_api(payload, error_callback, success_callback);
+    send_to_api.batch(payload, error_callback, success_callback);
   });
 }

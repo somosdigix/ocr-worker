@@ -55,5 +55,5 @@ function send(channel) {
     _messages_to_send.forEach((message) => _channel.ack(message));
   };
 
-  send_to_api(payload, error_callback, success_callback);
+  send_to_api.batch(payload, error_callback, success_callback);
 }
