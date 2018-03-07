@@ -47,8 +47,6 @@ function send(channel) {
   payload.forEach((item) => console.log(' [x] %s', item.idImagem));
   console.log(' [x] ---------------');
 
-  _messages_to_send = [];
-
   const error_callback = () => {
     _messages_to_send.forEach((message) => _channel.nack(message));
   };
