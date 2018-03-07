@@ -6,6 +6,7 @@ const send_to_api = require('./send_to_api');
 
 let _channel;
 let _messages_to_send = [];
+let _sending_batch = false;
 
 amqp.connect(argv.amqp_uri, (error, connection) => {
   connection.createChannel((error, channel) => {
@@ -25,14 +26,15 @@ function mount_batch(message) {
 
 function start_sender() {
   setInterval(() => {
-    console.log('send');
     send(_channel);
   }, argv.send_timeout * 1000);
 }
 
 function send(channel) {
-  if (_messages_to_send.length < argv.parallel_count)
+  if (_sending_batch || _messages_to_send.length < argv.parallel_count)
     return;
+
+  _sending_batch = true;
 
   const payload = _messages_to_send.map((message) => {
     const document = JSON.parse(message.content.toString());
@@ -49,10 +51,14 @@ function send(channel) {
 
   const error_callback = () => {
     _messages_to_send.forEach((message) => _channel.nack(message));
+    _messages_to_send = [];
+    _sending_batch = false;
   };
 
   const success_callback = () => { 
     _messages_to_send.forEach((message) => _channel.ack(message));
+    _messages_to_send = [];
+    _sending_batch = false;
   };
 
   send_to_api.batch(payload, error_callback, success_callback);
