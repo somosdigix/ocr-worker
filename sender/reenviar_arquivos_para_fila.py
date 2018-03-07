@@ -20,14 +20,12 @@ channel.queue_declare(queue=nome_da_fila, durable=True)
 quantidade_enviada = 0
 
 for file_name in glob.glob(args.pasta):
-    arquivo = open(file_name)
+    arquivo = open(file_name, encoding='utf8')
 
     mensagem = {
         'id': int(os.path.basename(file_name).replace('.txt', '')),
         'texto': arquivo.read()
     }
-
-    # print(json.dumps(mensagem))
 
     channel.basic_publish(exchange='',
                   routing_key=nome_da_fila,
