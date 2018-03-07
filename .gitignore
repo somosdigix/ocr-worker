@@ -1,4 +1,6 @@
 node_modules/
 **/*.txt
 **/*.json
+!**/package.json
+!**/package.lock.json
 *.jpg
