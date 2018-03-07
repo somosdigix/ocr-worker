@@ -8,11 +8,11 @@ amqp.connect(argv.amqp_uri, (error, connection) => {
   connection.createChannel((error, channel) => {
     channel.assertQueue(queue_name, {durable: true});
     channel.prefetch(argv.parallel_count);
-    channel.consume(queue_name, (message) => send_to_api(channel, message), {noAck: false});
+    channel.consume(queue_name, (message) => send(channel, message), {noAck: false});
   });
 });
  
-function send_to_api(channel, message) {
+function send(channel, message) {
   const document = JSON.parse(message.content.toString());
 
   send_to_api({

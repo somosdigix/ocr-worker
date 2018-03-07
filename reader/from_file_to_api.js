@@ -5,10 +5,10 @@ const request = require('request');
 
 fs.readdir(argv.folder, (error, document) => {
   text_documents = document.filter((documento) => documento.indexOf('.txt') > -1);
-  send_documents(text_documents);
+  send(text_documents);
 });
 
-function send_documents(documents) {
+function send(documents) {
   let send_count = 0;
   
   documents.forEach((document) => {
