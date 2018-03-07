@@ -4,28 +4,55 @@ const amqp = require('amqplib/callback_api');
 const queue_name = 'processados';
 const send_to_api = require('./send_to_api');
 
+let _channel;
+let _messages_to_send = [];
+
 amqp.connect(argv.amqp_uri, (error, connection) => {
   connection.createChannel((error, channel) => {
-    channel.assertQueue(queue_name, {durable: true});
-    channel.prefetch(argv.parallel_count);
-    channel.consume(queue_name, (message) => send(channel, message), {noAck: false});
+    _channel = channel;
+
+    _channel.assertQueue(queue_name, {durable: true});
+    _channel.prefetch(argv.parallel_count);
+    _channel.consume(queue_name, (message) => mount_batch(message), {noAck: false});
+
+    start_sender();
   });
 });
- 
-function send(channel, message) {
-  const document = JSON.parse(message.content.toString());
 
-  const payload = {
-    idImagem: document.id,
-    resultadoDaOcr: document.texto
-  };
+function mount_batch(message) {
+  _messages_to_send.push(message);
+}
+
+function start_sender() {
+  setInterval(() => {
+    console.log('send');
+    send(_channel);
+  }, argv.send_timeout * 1000);
+}
+
+function send(channel) {
+  if (_messages_to_send.length < argv.parallel_count)
+    return;
+
+  const payload = _messages_to_send.map((message) => {
+    const document = JSON.parse(message.content.toString());
+
+    return {
+      idImagem: document.id,
+      resultadoDaOcr: document.texto
+    };
+  });
+
+  console.log(' [x] Enviando lote de %s', _messages_to_send.length);
+
+  _messages_to_send = [];
 
   const error_callback = () => {
-    channel.nack(message);
+    _messages_to_send.forEach((message) => _channel.nack(message));
   };
 
   const success_callback = () => { 
-    channel.ack(message)
+    _messages_to_send.forEach((message) => _channel.ack(message));
   };
 
   send_to_api(payload, error_callback, success_callback);
