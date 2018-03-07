@@ -8,6 +8,7 @@ import json
 parser=argparse.ArgumentParser()
 
 parser.add_argument('--amqp_uri', help='AMQP Uri')
+parser.add_argument('--pasta', help='Pasta para leitura')
 parser.add_argument('--quantidade', help='Quantidade de linhas a serem lidas')
 
 args=parser.parse_args()
@@ -18,7 +19,7 @@ nome_da_fila = 'processados'
 channel.queue_declare(queue=nome_da_fila, durable=True)
 quantidade_enviada = 0
 
-for file_name in glob.glob('../reader/*.txt'):
+for file_name in glob.glob(args.pasta):
     arquivo = open(file_name)
 
     mensagem = {
