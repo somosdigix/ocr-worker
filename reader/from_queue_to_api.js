@@ -18,5 +18,7 @@ function send(channel, message) {
   send_to_api({
     idImagem: document.id,
     resultadoDaOcr: document.texto
-  });
+  },
+  () => channel.nack(),
+  () => channel.ack());
 }

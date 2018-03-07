@@ -17,10 +17,11 @@ function send(documents) {
 
     send_count++;
 
-
     send_to_api({
       idImagem: parseInt(document.replace('.txt')),
       resultadoDaOcr: fs.readFileSync(document, 'utf8')
-    });
+    },
+    () => channel.nack(),
+    () => channel.ack());
   });
 }
