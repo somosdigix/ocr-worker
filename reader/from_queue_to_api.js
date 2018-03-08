@@ -1,24 +1,50 @@
 const fs = require('fs');
 const argv = require('yargs').argv
 const amqp = require('amqplib/callback_api');
-const queue_name = 'processados';
+const retry = require('retry');
+
 const send_to_api = require('./send_to_api');
+const queue_name = 'processados';
 
 let _channel;
 let _messages_to_send = [];
 let _sending_batch = false;
 
-amqp.connect(argv.amqp_uri, (error, connection) => {
-  connection.createChannel((error, channel) => {
-    _channel = channel;
+const retry_operation = retry.operation({ retries: 20 });
+retry_operation.attempt(start_connection);
 
-    _channel.assertQueue(queue_name, {durable: true});
-    _channel.prefetch(argv.parallel_count);
-    _channel.consume(queue_name, (message) => mount_batch(message), {noAck: false});
+function start_connection(attempt_number) {
+  amqp.connect(argv.amqp_uri, (error, connection) => {
+    console.info(' [x] Conectando a fila, tentativa número %s...', attempt_number);
 
-    start_sender();
+    if (retry_operation.retry(error))
+      return;
+
+    if (error) {
+      console.warn(' [x] Não foi possível realizar a conexão. Motivo: %s', error);
+      return;
+    }
+
+    console.info(' [x] Fila conectada');
+
+    connection.on('error', (error) => {
+      console.warn(' [x] Conexão encerrada inesperadamente');
+      console.warn(error);
+
+      retry_operation.retry(error);
+    });
+  
+    connection.createChannel((error, channel) => {
+      _channel = channel;
+  
+      _channel.assertQueue(queue_name, {durable: true});
+      _channel.prefetch(argv.parallel_count);
+      _channel.consume(queue_name, (message) => mount_batch(message), {noAck: false});
+  
+      start_sender();
+    });
   });
-});
+}
 
 function mount_batch(message) {
   if (!_sending_batch)
@@ -45,10 +71,6 @@ function send(channel) {
       resultadoDaOcr: document.texto
     };
   });
-
-  console.log(' [x] Enviando lote:', _messages_to_send.length);
-  payload.forEach((item) => console.log(' [x] %s', item.idImagem));
-  console.log(' [x] ---------------');
 
   const error_callback = () => {
     _messages_to_send.forEach((message) => _channel.nack(message));
