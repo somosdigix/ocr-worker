@@ -2,6 +2,7 @@ const fs = require('fs');
 const argv = require('yargs').argv
 const amqp = require('amqplib/callback_api');
 const retry = require('retry');
+const marky = require('marky');
 
 const send_to_api = require('./send_to_api');
 const queue_name = 'processados';
@@ -47,8 +48,10 @@ function start_connection(attempt_number) {
 }
 
 function mount_batch(message) {
-  if (!_sending_batch)
-    _messages_to_send.push(message);
+  if (_sending_batch)
+    return;
+
+  _messages_to_send.push(message);
 }
 
 function start_send_timer() {
@@ -58,7 +61,7 @@ function start_send_timer() {
 }
 
 function send(channel) {
-  if (_sending_batch || _messages_to_send.length === 0)
+  if (_sending_batch)
     return;
 
   _sending_batch = true;
@@ -82,10 +85,14 @@ function send(channel) {
     restart();
   };
 
+  marky.mark('send');
   send_to_api.batch(payload, error_callback, success_callback);
 }
 
 function restart() {
+  const send_time = marky.stop('send');
+  console.info(' [x] Requisição finalizada em %s ms', send_time.duration);
+
   _messages_to_send = [];
   _sending_batch = false;
   start_send_timer();
