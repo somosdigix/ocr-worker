@@ -41,7 +41,7 @@ function start_connection(attempt_number) {
       _channel.prefetch(argv.parallel_count);
       _channel.consume(queue_name, (message) => mount_batch(message), {noAck: false});
   
-      start_sender();
+      start_send_timer();
     });
   });
 }
@@ -51,8 +51,8 @@ function mount_batch(message) {
     _messages_to_send.push(message);
 }
 
-function start_sender() {
-  setInterval(() => {
+function start_send_timer() {
+  setTimeout(() => {
     send(_channel);
   }, argv.send_timeout * 1000);
 }
@@ -74,15 +74,19 @@ function send(channel) {
 
   const error_callback = () => {
     _messages_to_send.forEach((message) => _channel.nack(message));
-    _messages_to_send = [];
-    _sending_batch = false;
+    restart();
   };
 
   const success_callback = () => { 
     _messages_to_send.forEach((message) => _channel.ack(message));
-    _messages_to_send = [];
-    _sending_batch = false;
+    restart();
   };
 
   send_to_api.batch(payload, error_callback, success_callback);
+}
+
+function restart() {
+  _messages_to_send = [];
+  _sending_batch = false;
+  start_send_timer();
 }

@@ -11,6 +11,8 @@
   "dependencies": {
     "amqplib": "^0.5.2",
     "axios": "^0.18.0",
+    "d3-timer": "^1.0.7",
+    "moment-timer": "^1.2.2",
     "retry": "^0.10.1",
     "yargs": "^11.0.0"
   }
