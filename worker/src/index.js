@@ -4,6 +4,7 @@ const argv = require('yargs').argv
 const amqp = require('amqplib/callback_api');
 const tesseract = require('node-tesseract');
 const uuid = require('uuid/v4');
+const marky = require('marky');
 
 const fila_de_entrada = "para_processamento";
 const fila_de_processados = "processados";
@@ -38,25 +39,40 @@ function processarDocumento(ch, mensagemDaFila) {
       esta_processando = true;
 
       const mensagem = JSON.parse(mensagemDaFila.content.toString());
-      console.log(" [x] Baixando %s", mensagem.url);
+      console.info(' [x] Baixando %s', mensagem.url);
 
       const pathDaImagemBaixada = `./${uuid()}.jpg`;
-
+      
+      marky.mark('download');
       download(mensagem.url, pathDaImagemBaixada, () => {
-        tesseract.process(pathDaImagemBaixada, tesseract_options, function(err, text) {
-          if (err) {
-            console.error(err);
-            throw new Error(err.message);
-          } else {
-            let resposta = {texto: text, id: mensagem.id }
-            let respostaEmJson = JSON.stringify(resposta);
-            
-            fs.unlink(pathDaImagemBaixada);
-            enviar_para_fila_de_processados(ch, respostaEmJson);
+        const tempo_de_download = marky.stop('download');
+        console.info(' [x] Download finalizado: %s ms', tempo_de_download.duration);
 
-            console.log(" [x] Done");
-            ch.ack(mensagemDaFila);
-            esta_processando = false;
+        marky.mark('ocr');
+        tesseract.process(pathDaImagemBaixada, tesseract_options, function(erro, text) {
+          const tempo_de_ocr = marky.stop('ocr');
+          console.info(' [x] OCR finalizada: %s ms', tempo_de_ocr.duration);
+
+          if (erro) {
+            console.error(erro);
+            ch.nack(mensagemDaFila);
+
+            throw new Error(erro.message);
+          }
+          
+          else {
+            const resposta = {texto: text, id: mensagem.id }
+            const respostaEmJson = JSON.stringify(resposta);
+            
+            fs.unlink(pathDaImagemBaixada, (erro) => {
+              if (erro)
+                return;
+
+              enviar_para_fila_de_processados(ch, respostaEmJson);
+
+              ch.ack(mensagemDaFila);
+              esta_processando = false;
+            });
           }
         });
       });
