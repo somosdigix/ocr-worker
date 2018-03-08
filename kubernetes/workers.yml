@@ -3,7 +3,7 @@ kind: ReplicationController
 metadata:
   name: digix-ocr-worker
 spec:
-  replicas: 1
+  replicas: 8
   selector:
     name: digix-ocr-worker
   template:
@@ -20,4 +20,4 @@ spec:
                 secretKeyRef:
                   name: rabbit-mq-password
                   key: password
-          command: ['./tools/wait-for-it.sh', '35.202.182.156:5672', '--', "node", "./src/worker/src/index.js", "--amqp_uri", "amqp://admin:$(RABBITMQ_PASSWORD)@35.202.182.156"]
+          command: ['./tools/wait-for-it.sh', '130.211.209.146:5672', '--', "node", "./src/worker/src/index.js", "--amqp_uri", "amqp://admin:$(RABBITMQ_PASSWORD)@130.211.209.146"]
