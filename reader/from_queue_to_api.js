@@ -58,7 +58,7 @@ function start_send_timer() {
 }
 
 function send(channel) {
-  if (_sending_batch)
+  if (_sending_batch || _messages_to_send.length === 0)
     return;
 
   _sending_batch = true;
