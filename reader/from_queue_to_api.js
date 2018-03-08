@@ -64,6 +64,11 @@ function send(channel) {
   if (_sending_batch)
     return;
 
+  if (_messages_to_send.length === 0) {
+    restart();
+    return;
+  }
+
   _sending_batch = true;
 
   const payload = _messages_to_send.map((message) => {
@@ -77,11 +82,13 @@ function send(channel) {
 
   const error_callback = () => {
     _messages_to_send.forEach((message) => _channel.nack(message));
+    show_request_timer();
     restart();
   };
 
   const success_callback = () => { 
     _messages_to_send.forEach((message) => _channel.ack(message));
+    show_request_timer();
     restart();
   };
 
@@ -89,10 +96,12 @@ function send(channel) {
   send_to_api.batch(payload, error_callback, success_callback);
 }
 
-function restart() {
-  const send_time = marky.stop('send');
-  console.info(' [x] Requisição finalizada em %s ms', send_time.duration);
+function show_request_timer() {
+  const request_time = marky.stop('send');
+  console.info(' [x] Requisição finalizada em %s ms', request_time.duration);
+}
 
+function restart() {
   _messages_to_send = [];
   _sending_batch = false;
   start_send_timer();
