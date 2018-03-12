@@ -100,4 +100,4 @@ amqp.connect(argv.amqp_uri, function(err, conn) {
     ch.prefetch(1);
     ch.consume(fila_de_entrada, msg => processarDocumento(ch, msg), { noAck: false });
   });
-})
+});
