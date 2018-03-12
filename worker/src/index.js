@@ -12,6 +12,9 @@ const fila_de_nao_processados = "nao_processados";
 
 const download = (uri, filename, callback) => {
   request.head(uri, (err, res, body) => {
+    if (err)
+      throw new Error(' [x] Erro ao baixar o arquivo: %s', err);
+
     request(uri)
       .pipe(fs.createWriteStream(filename))
       .on('close', callback);
@@ -33,7 +36,7 @@ function enviar_para_fila_de_nao_processados(canal, mensagem) {
   canal.assertQueue(fila_de_nao_processados, {durable: true});
   canal.sendToQueue(fila_de_nao_processados, new Buffer(mensagem), {persistent : true});
 }
- 
+
 function processarDocumento(ch, mensagemDaFila) {
     try {
       esta_processando = true;
@@ -42,7 +45,7 @@ function processarDocumento(ch, mensagemDaFila) {
       console.info(' [x] Baixando %s', mensagem.url);
 
       const pathDaImagemBaixada = `./${uuid()}.jpg`;
-      
+
       marky.mark('download');
       download(mensagem.url, pathDaImagemBaixada, () => {
         const tempo_de_download = marky.stop('download');
@@ -59,11 +62,11 @@ function processarDocumento(ch, mensagemDaFila) {
 
             throw new Error(erro.message);
           }
-          
+
           else {
             const resposta = {texto: text, id: mensagem.id }
             const respostaEmJson = JSON.stringify(resposta);
-            
+
             fs.unlink(pathDaImagemBaixada, (erro) => {
               if (erro)
                 return;
@@ -79,7 +82,7 @@ function processarDocumento(ch, mensagemDaFila) {
     }
     catch(excecao) {
       console.error(excecao);
-      
+
       enviar_para_fila_de_nao_processados(ch, mensagemDaFila.content.toString());
 
       ch.ack(mensagemDaFila);
