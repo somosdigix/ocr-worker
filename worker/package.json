@@ -4,15 +4,21 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "exit 1",
+    "test": "node node_modules/ava/cli.js test/**/*.test.js",
+    "test:watch": "node node_modules/ava/cli.js test/**/*.test.js -w"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "amqplib": "^0.5.2",
+    "async": "^2.6.0",
+    "ava": "^0.25.0",
     "marky": "^1.2.0",
     "node-tesseract": "^0.2.7",
     "request": "^2.83.0",
+    "sinon": "^4.4.2",
+    "testdouble": "^3.5.2",
     "uuid": "^3.2.1",
     "yargs": "^11.0.0"
   }
