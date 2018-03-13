@@ -1,8 +1,10 @@
 const axios = require('axios');
 
+const endpoint = 'http://domusweb.agehab.ms.gov.br/Questionario/Horus';
+
 module.exports = {
   batch: function(payload, error_callback, success_callback) {
-    axios.post('http://hom.domusweb.agehab.ms.gov.br/questionario/api/documentos/atualizarOcr', payload)
+    axios.post(`${endpoint}/AtualizarOcr`, payload)
       .then(function (response) {
         success_callback(response);
         console.log(' [x] Enviado lote de %s', payload.length);
@@ -15,8 +17,8 @@ module.exports = {
       });
   },
 
-  single: function(payload, error_callback, success_callback) {  
-    axios.post('http://hom.domusweb.agehab.ms.gov.br/questionario/api/documento/atualizarOcr', payload)
+  single: function(payload, error_callback, success_callback) {
+    axios.post(`${endpoint}/AtualizarOcr`, payload)
       .then(function (response) {
         success_callback(response);
         console.log(' [x] Enviado %s', payload.idImagem);
