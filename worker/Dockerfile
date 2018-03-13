@@ -18,18 +18,15 @@ RUN apt-get install -y \
   tesseract-ocr-eng
 
 RUN apt-get install -y \
-  python-setuptools \
-  python-dev \
+  python3-setuptools \
+  python3-dev \
   build-essential \
   imagemagick \
-  python-imaging
+  python3-pil
 
-RUN easy_install pip
+RUN easy_install3 pip
 
 RUN git clone https://github.com/somosdigix/ocr-worker.git src/
-RUN pip install -r src/worker/src/requirements.txt
-RUN python src/worker/src/batch_ocr_worker.py --amqp_uri amqp://admin:RsPlz95Cux0F@130.211.209.146 --fila_de_processamento para_processar_sed --fila_de_processados processados_sed --fila_de_nao_processados nao_processados_sed
+RUN pip install -r src/worker/requirements.txt
 
 RUN git clone https://github.com/vishnubob/wait-for-it.git tools/
-
-RUN python --version
