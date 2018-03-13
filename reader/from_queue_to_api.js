@@ -5,7 +5,7 @@ const retry = require('retry');
 const marky = require('marky');
 
 const send_to_api = require('./send_to_api');
-const queue_name = 'processados';
+let queue_name = argv.queue;
 
 let _channel;
 let _messages_to_send = [];
@@ -34,14 +34,14 @@ function start_connection(attempt_number) {
 
       retry_operation.retry(error);
     });
-  
+
     connection.createChannel((error, channel) => {
       _channel = channel;
-  
+
       _channel.assertQueue(queue_name, {durable: true});
       _channel.prefetch(argv.parallel_count);
       _channel.consume(queue_name, (message) => mount_batch(message), {noAck: false});
-  
+
       start_send_timer();
     });
   });
@@ -86,7 +86,7 @@ function send(channel) {
     restart();
   };
 
-  const success_callback = () => { 
+  const success_callback = () => {
     _messages_to_send.forEach((message) => _channel.ack(message));
     show_request_timer();
     restart();

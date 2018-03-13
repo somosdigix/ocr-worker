@@ -24,7 +24,7 @@ RUN apt-get install -y \
   python3-dev \
   build-essential \
   imagemagick \
-  python3-pily
+  python3-pil
 
 RUN easy_install3 pip
 
