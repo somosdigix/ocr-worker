@@ -91,7 +91,7 @@ def enviar_para_fila_de_nao_processados(mensagem_original, erro):
                   ))
 
 def callback(ch, method, properties, body):
-  mensagem_da_fila_em_texto = body.decode('utf-8')
+  mensagem_da_fila_em_texto = body.decode('utf_8')
 
   try:
     inicio = timer()

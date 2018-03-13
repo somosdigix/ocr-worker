@@ -1,5 +1,7 @@
 FROM ubuntu
 
+ENV PYTHONIOENCODING=utf8
+
 RUN apt-get update && apt-get install -y \
   software-properties-common \
   git \
@@ -22,7 +24,7 @@ RUN apt-get install -y \
   python3-dev \
   build-essential \
   imagemagick \
-  python3-pil
+  python3-pily
 
 RUN easy_install3 pip
 

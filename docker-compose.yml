@@ -12,7 +12,7 @@ services:
       RABBITMQ_DEFAULT_PASS: "Phaish9ohbaidei6oole"
 
   worker:
-    image: renansmoreira/worker:2.0.0
+    image: renansmoreira/worker:2.0.1
     dns: ["8.8.8.8"]
     depends_on:
        - rabbitmq
