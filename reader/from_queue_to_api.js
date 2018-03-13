@@ -75,8 +75,8 @@ function send(channel) {
     const document = JSON.parse(message.content.toString());
 
     return {
-      idImagem: document.id,
-      resultadoDaOcr: document.texto
+      id: document.id,
+      texto: document.texto
     };
   });
 
