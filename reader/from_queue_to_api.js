@@ -55,9 +55,11 @@ function mount_batch(message) {
 }
 
 function start_send_timer() {
+  const timeout_in_seconds = argv.send_timeout * 1000;
+
   setTimeout(() => {
     send(_channel);
-  }, argv.send_timeout * 1000);
+  }, timeout_in_seconds);
 }
 
 function send(channel) {
