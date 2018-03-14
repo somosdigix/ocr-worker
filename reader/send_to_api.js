@@ -9,7 +9,7 @@ module.exports = {
   },
 
   batch: (payload, error_callback, success_callback) => {
-    axios.post(`${endpoint}/AtualizarOcr`, payload)
+    axios.post(`${_endpoint}/AtualizarOcr`, payload)
       .then((response) => {
         success_callback(response);
         console.log(' [x] Enviado lote de %s às %s', payload.length, moment().format('DD/MM - HH:mm'));
