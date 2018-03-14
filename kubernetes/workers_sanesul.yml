@@ -3,7 +3,7 @@ kind: ReplicationController
 metadata:
   name: digix-ocr-worker
 spec:
-  replicas: 2
+  replicas: 8
   selector:
     name: digix-ocr-worker
   template:
@@ -20,4 +20,4 @@ spec:
                 secretKeyRef:
                   name: rabbit-mq-password
                   key: password
-          command: ['./tools/wait-for-it.sh', '130.211.209.146:5672', '--', "python3", "-u", "src/worker/src/batch_ocr_worker.py", "--amqp_uri", "amqp://admin:$(RABBITMQ_PASSWORD)@130.211.209.146", "--fila_de_processamento", "para_processar_sed", "--fila_de_processados", "processados_sed", "--url_de_download_da_imagem", "http://domusweb.agehab.ms.gov.br/Questionario/Horus/ObterArquivos", "--fila_de_nao_processados", "nao_processados_sed"]
+          command: ['./tools/wait-for-it.sh', '130.211.209.146:5672', '--', "python3", "-u", "src/worker/src/batch_ocr_worker.py", "--amqp_uri", "amqp://admin:$(RABBITMQ_PASSWORD)@130.211.209.146", "--fila_de_processamento", "para_processar_sed", "--fila_de_processados", "processados_sed", "--url_de_download_da_imagem", "http://domusweb.dev.digix.com.br:8083/Questionario/Horus/ObterArquivos", "--fila_de_nao_processados", "nao_processados_sed"]

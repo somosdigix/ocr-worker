@@ -21,7 +21,8 @@ def obter_argumentos_da_linha_de_comando():
   parser.add_argument('--fila_de_processamento', help='Nome da fila de processamento')
   parser.add_argument('--fila_de_processados', help='Nome da fila de documentos processados')
   parser.add_argument('--fila_de_nao_processados', help='Nome da fila de documentos que não puderam ser processados')
-  parser.add_argument('--quantidade', help='Quantidade de linhas a serem lidas')
+  parser.add_argument('--url_de_download_da_imagem', help='URL para download do documento')
+
   return parser.parse_args()
 
 QUANTIDADE_DO_LOTE_DE_PAGINAS_POR_ARQUIVO = 10
@@ -44,7 +45,7 @@ def obter_arquivo_com_as_paginas(ids_das_paginas):
 
     inicio = timer()
     parametros_da_requisicao = { 'idsDasImagens': ids_das_paginas }
-    resposta = requests.get('http://domusweb.agehab.ms.gov.br/Questionario/Horus/ObterArquivos', stream=True, params=parametros_da_requisicao)
+    resposta = requests.get(args.url_de_download_da_imagem, stream=True, params=parametros_da_requisicao)
     return salvar_conteudo_da_requisicao(resposta)
 
 def converter_paginas_do_pdf_em_imagens(caminho_do_pdf, caminho_da_imagem):
