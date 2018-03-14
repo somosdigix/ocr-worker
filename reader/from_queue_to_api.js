@@ -5,6 +5,10 @@ const retry = require('retry');
 const marky = require('marky');
 
 const send_to_api = require('./send_to_api');
+send_to_api.configure(argv.endpoint);
+
+console.log(argv.endpoint);
+
 let queue_name = argv.queue;
 
 let _channel;

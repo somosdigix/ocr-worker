@@ -1,16 +1,20 @@
 const axios = require('axios');
 const moment = require('moment');
 
-const endpoint = 'http://domusweb.agehab.ms.gov.br/Questionario/Horus';
+let _endpoint;
 
 module.exports = {
-  batch: function(payload, error_callback, success_callback) {
+  configure: (endpoint) => {
+    _endpoint = endpoint;
+  },
+
+  batch: (payload, error_callback, success_callback) => {
     axios.post(`${endpoint}/AtualizarOcr`, payload)
-      .then(function (response) {
+      .then((response) => {
         success_callback(response);
-        console.log(' [x] Enviado lote de %s às %s', payload.length, moment().format('dd/MM - HH:mm'));
+        console.log(' [x] Enviado lote de %s às %s', payload.length, moment().format('DD/MM - HH:mm'));
       })
-      .catch(function (error) {
+      .catch((error) => {
         error_callback(error);
         console.log(' [x] Erro ao enviar para API: %s', payload.id);
         console.log(' [x] Erro: %s', error);
