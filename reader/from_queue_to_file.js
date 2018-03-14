@@ -10,7 +10,7 @@ create_root_dir();
 amqp.connect(argv.amqp_uri, (error, connection) => {
   connection.createChannel((error, channel) => {
     channel.assertQueue(queue_name, {durable: true});
-    channel.prefetch(1);
+    channel.prefetch(10);
     channel.consume(queue_name, (message) => save_to_file(channel, message), {noAck: false});
   });
 });
@@ -24,7 +24,7 @@ function create_root_dir() {
 
 function save_to_file(channel, message) {
   const document = JSON.parse(message.content.toString());
-  const sql = `UPDATE imagens SET resultadoocr = '${document.texto.replace('\'', '\\\'')}' WHERE imagem_cd = ${document.id}`;
+  const sql = `UPDATE imagens SET resultadoocr = '${document.texto.replace(/\'/g, '\'\'')}' WHERE imagem_cd = ${document.id}`;
 
   fs.writeFile(`./scripts/${document.id}.sql`, sql, { encoding: 'utf8' }, (error) => {
     if (error) {
