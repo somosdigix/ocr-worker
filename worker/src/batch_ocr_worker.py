@@ -13,6 +13,10 @@ except ImportError:
 import argparse
 import json
 from zipfile import ZipFile
+from retrying import retry
+
+QUANTIDADE_DO_LOTE_DE_PAGINAS_POR_ARQUIVO = 10
+TAMANHO_DO_BUFFER_DE_ESCRITA = 1024
 
 def obter_argumentos_da_linha_de_comando():
   parser = argparse.ArgumentParser()
@@ -25,15 +29,8 @@ def obter_argumentos_da_linha_de_comando():
 
   return parser.parse_args()
 
-QUANTIDADE_DO_LOTE_DE_PAGINAS_POR_ARQUIVO = 10
-TAMANHO_DO_BUFFER_DE_ESCRITA = 1024
-
 args = obter_argumentos_da_linha_de_comando()
-connection = pika.BlockingConnection(pika.URLParameters(args.amqp_uri))
-channel = connection.channel()
-channel.queue_declare(queue=args.fila_de_processamento, durable=True)
-channel.queue_declare(queue=args.fila_de_processados, durable=True)
-channel.queue_declare(queue=args.fila_de_nao_processados, durable=True)
+channel = None
 
 def obter_arquivo_com_as_paginas(ids_das_paginas):
     def salvar_conteudo_da_requisicao(resposta):
@@ -92,10 +89,13 @@ def enviar_para_fila_de_nao_processados(mensagem_original, erro):
                   ))
 
 def callback(ch, method, properties, body):
-  mensagem_da_fila_em_texto = body.decode('utf_8')
+  inicio = timer()
+  duracao = None
+  mensagem_da_fila_em_texto = ''
 
   try:
-    inicio = timer()
+    print(' [x] Iniciando processamento da mensagem')
+    mensagem_da_fila_em_texto = body.decode('utf_8')
 
     dados_da_mensagem = json.loads(mensagem_da_fila_em_texto)
     zip_das_paginas, duracao_do_download = obter_arquivo_com_as_paginas(dados_da_mensagem['ids'])
@@ -112,18 +112,33 @@ def callback(ch, method, properties, body):
       print(' [x] Duração do OCR da página {0}: {1}'.format(id_da_imagem, duracao_do_ocr))
 
     limpar_arquivos_das_paginas()
-    duracao = timer() - inicio
-    print(' [x] Duração total: {0}'.format(duracao))
 
   except Exception as excecao:
-    print(' [x] Erro no processamento: {0}'.format(excecao))
+    print(' [x] Erro no processamento')
+    print(excecao)
+
     enviar_para_fila_de_nao_processados(mensagem_da_fila_em_texto, str(excecao))
 
   finally:
     ch.basic_ack(delivery_tag = method.delivery_tag)
 
-if __name__ == '__main__':
+    duracao = timer() - inicio
+    print(' [x] Duração total: {0}'.format(duracao))
+    print(' [x] ====================================================')
+
+@retry(stop_max_attempt_number=10, wait_exponential_multiplier=1000)
+def iniciar():
+  connection = pika.BlockingConnection(pika.URLParameters(args.amqp_uri))
+  global channel
+  channel = connection.channel()
+  channel.queue_declare(queue=args.fila_de_processamento, durable=True)
+  channel.queue_declare(queue=args.fila_de_processados, durable=True)
+  channel.queue_declare(queue=args.fila_de_nao_processados, durable=True)
+
   channel.basic_qos(prefetch_count=1)
   channel.basic_consume(callback, queue=args.fila_de_processamento)
 
   channel.start_consuming()
+
+if __name__ == '__main__':
+  iniciar()
