@@ -4,6 +4,7 @@ import sys
 import glob
 import os
 import json
+import time
 
 parser=argparse.ArgumentParser()
 
@@ -28,7 +29,7 @@ def callback(ch, method, properties, body) :
   enviar_para_fila_para_processar(dados_da_mensagem["mensagem_original"])
   ch.basic_ack(delivery_tag = method.delivery_tag)
 
-  print(' [x] Mensagem enviada')
+  print(' [x] Mensagem enviada às ' + time.strftime('%H:%M:%S', time.localtime()))
 
 connection = pika.BlockingConnection(pika.URLParameters(args.amqp_uri))
 channel = connection.channel()
