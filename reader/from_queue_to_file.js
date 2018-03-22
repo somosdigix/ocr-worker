@@ -35,6 +35,6 @@ function save_to_file(channel, message) {
 
     console.log(` [x] Gerado ${document.id}`);
 
-    channel.nack(message);
+    channel.ack(message);
   });
 }
