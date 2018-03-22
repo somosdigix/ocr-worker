@@ -111,8 +111,6 @@ def callback(ch, method, properties, body):
       enviar_para_fila_de_processados(id_da_imagem, texto_da_imagem)
       print(' [x] Duração do OCR da página {0}: {1}'.format(id_da_imagem, duracao_do_ocr))
 
-    limpar_arquivos_das_paginas()
-
   except Exception as excecao:
     print(' [x] Erro no processamento')
     print(excecao)
@@ -120,6 +118,8 @@ def callback(ch, method, properties, body):
     enviar_para_fila_de_nao_processados(mensagem_da_fila_em_texto, str(excecao))
 
   finally:
+    limpar_arquivos_das_paginas()
+
     ch.basic_ack(delivery_tag = method.delivery_tag)
 
     duracao = timer() - inicio
