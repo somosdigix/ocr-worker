@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: digix-ocr-worker
-          image: renansmoreira/worker:2.0.3
+          image: renansmoreira/worker:2.0.4
           env:
             - name: RABBITMQ_PASSWORD
               valueFrom:
