@@ -32,6 +32,7 @@ def obter_argumentos_da_linha_de_comando():
 args = obter_argumentos_da_linha_de_comando()
 channel = None
 
+@retry(stop_max_attempt_number=10, wait_exponential_multiplier=1000)
 def obter_arquivo_com_as_paginas(ids_das_paginas):
     def salvar_conteudo_da_requisicao(resposta):
       with open('documento.zip', 'wb') as arquivo:
@@ -72,6 +73,7 @@ def converter_em_imagens(pdfs):
   duracao = timer() - inicio
   return glob.glob("*.jpg"), duracao
 
+@retry(stop_max_attempt_number=10, wait_exponential_multiplier=1000)
 def enviar_para_fila_de_processados(id_da_imagem, texto_da_imagem):
   channel.basic_publish(exchange='',
                   routing_key=args.fila_de_processados,
@@ -80,6 +82,7 @@ def enviar_para_fila_de_processados(id_da_imagem, texto_da_imagem):
                      delivery_mode = 2,
                   ))
 
+@retry(stop_max_attempt_number=10, wait_exponential_multiplier=1000)
 def enviar_para_fila_de_nao_processados(mensagem_original, erro):
   channel.basic_publish(exchange='',
                   routing_key=args.fila_de_nao_processados,
