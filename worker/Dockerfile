@@ -23,11 +23,9 @@ RUN apt-get update && apt-get install -y \
   imagemagick=8:6.8.9.9-7ubuntu5.13 \
   python3-pil=3.1.2-0ubuntu1.1
 
-RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-RUN python3 get-pip.py
-
 COPY ./src ./src
 COPY ./tools ./tools
 RUN cp -f ./tools/ImageMagick-policy.xml /etc/ImageMagick-6/policy.xml
 
+RUN python3 ./tools/get-pip.py
 RUN pip install -r ./src/requirements.txt
