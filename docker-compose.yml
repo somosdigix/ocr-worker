@@ -12,7 +12,14 @@ services:
       RABBITMQ_DEFAULT_PASS: "Phaish9ohbaidei6oole"
 
   worker:
-    image: renansmoreira/worker:2.0.6
+    image: renansmoreira/ocr-worker:2.0.7
+    dns: ["8.8.8.8"]
+    depends_on:
+       - rabbitmq
+    command: ['./tools/wait-for-it.sh', 'rabbitmq:5672', '--', "python3", "-u", "src/worker/src/batch_ocr_worker.py", "--amqp_uri", "amqp://admin:Phaish9ohbaidei6oole@rabbitmq", "--fila_de_processamento", "para_processar_sed",  "--fila_de_processados", "processados_sed", "--url_de_download_da_imagem", "http://domusweb.agehab.ms.gov.br/Questionario/Horus/ObterArquivos", "--fila_de_nao_processados", "nao_processados_sed"]
+
+  worker_2:
+    image: renansmoreira/ocr-worker:2.0.7
     dns: ["8.8.8.8"]
     depends_on:
        - rabbitmq

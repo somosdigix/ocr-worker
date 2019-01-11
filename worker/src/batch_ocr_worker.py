@@ -1,3 +1,4 @@
+import datetime
 import pika
 import requests
 import subprocess
@@ -19,7 +20,7 @@ QUANTIDADE_DO_LOTE_DE_PAGINAS_POR_ARQUIVO = 10
 TAMANHO_DO_BUFFER_DE_ESCRITA = 1024
 
 def logar_informacao(mensagem):
-  print(' [x] ' + mensagem)
+  print('[{0:%d/%m/%Y %H:%M:%S}] '.format(datetime.datetime.now()) + mensagem)
 
 def logar_excecao(excecao):
   print(excecao)
@@ -142,7 +143,7 @@ def enviar_para_fila_de_processados(id_da_imagem, texto_da_imagem):
                     ))
 
     duracao = timer() - inicio;
-    logar_informacao('Duração do envio da página {0}: {1}'.format(id_da_imagem, duracao))
+    logar_informacao('Duração do envio da página para fila de processados {0}: {1}'.format(id_da_imagem, duracao))
   except Exception as excecao:
     logar_informacao('Erro ao enviar para fila de processados a imagem ' + id_da_imagem)
     logar_excecao(excecao)
@@ -203,17 +204,21 @@ def callback(ch, method, properties, body):
 def iniciar():
   logar_informacao('Iniciando conexão com a fila')
 
-  connection = pika.BlockingConnection(pika.URLParameters(args.amqp_uri))
   global channel
-  channel = connection.channel()
-  channel.queue_declare(queue=args.fila_de_processamento, durable=True)
-  channel.queue_declare(queue=args.fila_de_processados, durable=True)
-  channel.queue_declare(queue=args.fila_de_nao_processados, durable=True)
 
-  channel.basic_qos(prefetch_count=1)
-  channel.basic_consume(callback, queue=args.fila_de_processamento)
+  try:
+    connection = pika.BlockingConnection(pika.URLParameters(args.amqp_uri))
+    channel = connection.channel()
+    channel.queue_declare(queue=args.fila_de_processamento, durable=True)
+    channel.queue_declare(queue=args.fila_de_processados, durable=True)
+    channel.queue_declare(queue=args.fila_de_nao_processados, durable=True)
 
-  channel.start_consuming()
+    channel.basic_qos(prefetch_count=1)
+    channel.basic_consume(callback, queue=args.fila_de_processamento)
+
+    channel.start_consuming()
+  except:
+    logar_informacao('Erro inesperado:', sys.exc_info()[0])
 
 if __name__ == '__main__':
   iniciar()

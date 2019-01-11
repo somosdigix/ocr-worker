@@ -1,10 +1,11 @@
-FROM ubuntu
+FROM ubuntu:xenial-20180417
 
 ENV PYTHONIOENCODING=utf8
 
 RUN apt-get update && apt-get install -y \
   software-properties-common \
   git \
+  curl \
   gcc
 
 RUN add-apt-repository ppa:alex-p/tesseract-ocr && apt-get update
@@ -26,9 +27,11 @@ RUN apt-get install -y \
   imagemagick \
   python3-pil
 
-RUN easy_install3 pip
+RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+RUN python3 get-pip.py
 
-RUN git clone https://github.com/somosdigix/ocr-worker.git src/
-RUN pip install -r src/worker/requirements.txt
+COPY ./src ./src
+COPY ./tools ./tools
+RUN cp -f ./tools/ImageMagick-policy.xml /etc/ImageMagick-6/policy.xml
 
-RUN git clone https://github.com/vishnubob/wait-for-it.git tools/
+RUN pip install -r ./src/requirements.txt
