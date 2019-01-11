@@ -218,7 +218,7 @@ def iniciar():
 
     channel.start_consuming()
   except:
-    logar_informacao('Erro inesperado:', sys.exc_info()[0])
+    logar_informacao('Erro inesperado:' + sys.exc_info()[0])
 
 if __name__ == '__main__':
   iniciar()
